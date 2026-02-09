@@ -1,0 +1,22 @@
+package com.javanauta.bffagendadordetarefas.infrastructure.Client.config;
+
+import com.javanauta.bffagendadordetarefas.infrastructure.exceptions.BusinessException;
+import com.javanauta.bffagendadordetarefas.infrastructure.exceptions.ConflictException;
+import com.javanauta.bffagendadordetarefas.infrastructure.exceptions.ResourceNotFound;
+import com.javanauta.bffagendadordetarefas.infrastructure.exceptions.UnauthorizedException;
+import feign.Response;
+import feign.codec.ErrorDecoder;
+import org.apache.commons.lang3.concurrent.ConcurrentException;
+
+public class FeignError implements ErrorDecoder {
+
+    @Override
+    public Exception decode(String s, Response response) {
+        switch (response.status()){
+            case 409 : return new ConflictException("Erro atributo já existente");
+            case 403 : return new ResourceNotFound("Erro atributo não encontrado");
+            case 401 : return new UnauthorizedException("Erro usuário não autorizado");
+            default : return new BusinessException("Erro de servidor");
+        }
+    }
+}
