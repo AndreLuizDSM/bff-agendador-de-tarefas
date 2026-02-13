@@ -2,21 +2,42 @@ package com.javanauta.bffagendadordetarefas.infrastructure.Client.config;
 
 import com.javanauta.bffagendadordetarefas.infrastructure.exceptions.BusinessException;
 import com.javanauta.bffagendadordetarefas.infrastructure.exceptions.ConflictException;
+import com.javanauta.bffagendadordetarefas.infrastructure.exceptions.IllegalArgumentException;
 import com.javanauta.bffagendadordetarefas.infrastructure.exceptions.ResourceNotFound;
 import com.javanauta.bffagendadordetarefas.infrastructure.exceptions.UnauthorizedException;
 import feign.Response;
 import feign.codec.ErrorDecoder;
 import org.apache.commons.lang3.concurrent.ConcurrentException;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
+
 public class FeignError implements ErrorDecoder {
 
     @Override
     public Exception decode(String s, Response response) {
+
+        String mensagemErro = mensagemErro(response);
+
         switch (response.status()){
-            case 409 : return new ConflictException("Erro atributo já existente");
-            case 403 : return new ResourceNotFound("Erro atributo não encontrado");
-            case 401 : return new UnauthorizedException("Erro usuário não autorizado");
-            default : return new BusinessException("Erro de servidor");
+            case 409 : return new ConflictException("Erro: " + mensagemErro);
+            case 403 : return new ResourceNotFound("Erro: " + mensagemErro);
+            case 401 : return new UnauthorizedException("Erro: " + mensagemErro);
+            case 400 : return new IllegalArgumentException("Erro: " + mensagemErro);
+            default : return new BusinessException("Erro: " + mensagemErro);
         }
+    }
+
+    private String mensagemErro(Response response){
+        try {
+            if (Objects.isNull(response)) {
+                return "";
+            }
+            return new String(response.body().asInputStream().readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }

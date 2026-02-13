@@ -1,6 +1,7 @@
 package com.javanauta.bffagendadordetarefas.controller;
 
 import com.javanauta.bffagendadordetarefas.business.UsuarioService;
+import com.javanauta.bffagendadordetarefas.business.ViaCepService;
 import com.javanauta.bffagendadordetarefas.business.dto.in.EnderecoDTORequest;
 import com.javanauta.bffagendadordetarefas.business.dto.in.LoginDTORequest;
 import com.javanauta.bffagendadordetarefas.business.dto.in.TelefoneDTORequest;
@@ -8,6 +9,7 @@ import com.javanauta.bffagendadordetarefas.business.dto.in.UsuarioDTORequest;
 import com.javanauta.bffagendadordetarefas.business.dto.out.EnderecoDTOResponse;
 import com.javanauta.bffagendadordetarefas.business.dto.out.TelefoneDTOResponse;
 import com.javanauta.bffagendadordetarefas.business.dto.out.UsuarioDTOResponse;
+import com.javanauta.bffagendadordetarefas.business.dto.out.ViaCepDTOResponse;
 import com.javanauta.bffagendadordetarefas.infrastructure.Security.SecurityConfig;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+    private final ViaCepService cepService;
 
     @PostMapping
     @Operation(summary = "Salvar usuário", description = "Criar e cadastrar usuário")
@@ -40,6 +43,7 @@ public class UsuarioController {
     @Operation(summary = "Login Usuário", description = "Login do usuário")
     @ApiResponse(responseCode = "200", description = "Login realizado")
     @ApiResponse(responseCode = "401", description = "Credenciais inválidas")
+    @ApiResponse(responseCode = "403", description = "Usuário não encontrado")
     @ApiResponse(responseCode = "500", description = "Erro de servidor")
     public String login(@RequestBody LoginDTORequest usuarioDTO){
         return usuarioService.loginUsuario(usuarioDTO);
@@ -123,5 +127,13 @@ public class UsuarioController {
                                                                       @RequestParam("id") Long id,
                                                                       @RequestHeader(name = "Authorization", required = false) String token) {
         return ResponseEntity.ok(usuarioService.atualizaTelefone(id, telefoneDTO, token));
+    }
+    @GetMapping("/endereco/{cep}")
+    @Operation(summary = "Buscar cep", description = "Buscar dados de um cep")
+    @ApiResponse(responseCode = "200", description = "Dados do cep enviado!")
+    @ApiResponse(responseCode = "400", description = "Credenciais inválidas")
+    @ApiResponse(responseCode = "500", description = "Erro de servidor")
+    public ResponseEntity<ViaCepDTOResponse> buscarCep (@PathVariable("cep") String cep) {
+        return ResponseEntity.ok(cepService.buscaCep(cep));
     }
 }
