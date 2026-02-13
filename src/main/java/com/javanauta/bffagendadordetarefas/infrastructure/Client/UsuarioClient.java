@@ -7,6 +7,7 @@ import com.javanauta.bffagendadordetarefas.business.dto.in.UsuarioDTORequest;
 import com.javanauta.bffagendadordetarefas.business.dto.out.EnderecoDTOResponse;
 import com.javanauta.bffagendadordetarefas.business.dto.out.TelefoneDTOResponse;
 import com.javanauta.bffagendadordetarefas.business.dto.out.UsuarioDTOResponse;
+import com.javanauta.bffagendadordetarefas.business.dto.out.ViaCepDTOResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,6 +47,8 @@ public interface UsuarioClient {
                                                @RequestParam("id") Long id,
                                                @RequestHeader(name = "Authorization", required = false) String token);
 
+    @GetMapping("/endereco/{cep}/")
+    ViaCepDTOResponse buscarCep(@PathVariable("cep") String cep);
 }
 
 
